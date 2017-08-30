@@ -1116,12 +1116,22 @@
                 node.lastTriedWidth === lastTriedWidth && node.lastTriedHeight === lastTriedHeight)) {
                 return;
             }
+
             node.lastTriedX = x;
             node.lastTriedY = y;
             node.lastTriedWidth = width;
             node.lastTriedHeight = height;
             self.grid.moveNode(node, x, y, width, height);
             self._updateContainerHeight();
+
+            // test time show
+            if (x > 0 && x <= self.grid.width) {
+              var startHour = parseInt((node.x * 15) / 60);
+              var startMin = (node.x * 15) % 60;
+              var endHour = parseInt((node.x * 15 + node.width * 15) / 60);
+              var endMin = (node.x * 15 + node.width * 15) % 60;
+              ui.helper.context.children[0].children[0].innerHTML = startHour+':'+startMin+' - '+endHour+':'+endMin;
+            }
         };
 
         var onStartMoving = function(event, ui) {
@@ -1587,7 +1597,6 @@
     };
 
     GridStack.prototype.cellWidth = function() {
-       console.log(this.container.outerWidth());
         return Math.round(this.container.outerWidth() / this.opts.width);
     };
 

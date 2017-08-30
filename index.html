@@ -1647,10 +1647,21 @@
                 var grid = $(this).data('gridstack');
 
                 _.each(items, function (node) {
-                    grid.addWidget($('<div><div class="grid-stack-item-content" style="'+ node.style +'">'+ node.text +'</div><div/>'),
+                    var startHour = parseInt((node.x * 15) / 60);
+                    var startMin = (node.x * 15) % 60;
+                    var endHour = parseInt((node.x * 15 + node.width * 15) / 60);
+                    var endMin = (node.x * 15 + node.width * 15) % 60;
+                    grid.addWidget($('<div><div class="grid-stack-item-content" style="'+ node.style +'">'+ node.text +' <div name="time">'+startHour+':'+startMin+' - '+endHour+':'+endMin+'</div></div><div/>'),
                         node.x, node.y, node.width, node.height);
                 }, this);
             });
+
+            // $('.grid-stack').on('dragstart', function(event, ui) {
+            //     var grid = this;
+            //     var element = event.target;
+            //     console.log(grid);
+            //     console.log(event);
+            // });
 
             $('.sidebar .grid-stack-item').draggable({
                 revert: 'invalid',
