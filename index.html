@@ -1629,18 +1629,18 @@
             }, options));
 
             var items = [
-                {x: 0, y: 0, width: 10, height: 1},
-                {x: 10, y: 0, width: 10, height: 1},
-                {x: 20, y: 0, width: 10, height: 1},
-                {x: 30, y: 0, width: 10, height: 1},
-                {x: 40, y: 0, width: 10, height: 1}
+                {x: 0, y: 0, width: 10, height: 1, text: 'teste1', style: 'background-color: #18bc9c;'},
+                {x: 10, y: 0, width: 10, height: 1, text: 'teste2', style: 'background-color: red;'},
+                {x: 20, y: 0, width: 10, height: 1, text: 'teste3', style: 'background-color: #18bc9c;'},
+                {x: 30, y: 0, width: 10, height: 1, text: 'teste4', style: 'background-color: white;'},
+                {x: 40, y: 0, width: 10, height: 1, text: 'teste5', style: 'background-color: #18bc9c;'}
             ];
 
             $('.grid-stack').each(function () {
                 var grid = $(this).data('gridstack');
 
                 _.each(items, function (node) {
-                    grid.addWidget($('<div><div class="grid-stack-item-content" /><div/>'),
+                    grid.addWidget($('<div><div class="grid-stack-item-content" style="'+ node.style +'">'+ node.text +'</div><div/>'),
                         node.x, node.y, node.width, node.height);
                 }, this);
             });
