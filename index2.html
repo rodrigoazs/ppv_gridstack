@@ -104,11 +104,14 @@
 <body>
     <div class="container-fluid" ng-app="app" ng-controller="HomeCtrl">
         <h1>PPV</h1>
+            Titulo: <input type="text" ng-model="ppv_title"><br>
+            Inicio: <input type="text" ng-model="ppv_begin"><br>
+            Duracao: <input type="text" ng-model="ppv_length"><br>
         <div class="row" style="padding: 10px;">
           <div class="col-md-1" style="background-color: #2980b9; height: 60px;">a</div>
           <div class="col-md-9">
-              <div class="grid-stack grid-stack-100" style="width: 100%; height: 60px; max-height: 60px;" id="grid1">
-                <div ng-click="ppvOrdered()" ng-repeat="ppv in ppvStackBlocks" class="grid-content" ng-style="ppvStyle($index)">{{ppv.title}}</div>
+              <div class="grid-stack grid-stack-100" style="width: 1000px; height: 60px; max-height: 60px;" id="grid1">
+                <div ng-click="ppvAdd()" ng-repeat="ppv in ppvStackBlocks" class="grid-content" ng-style="ppvStyle($index)">{{ppv.title}}<br>{{ppv.time}}</div>
                 <!--<div style="cursor: pointer; width: 15%; height: 60px; background-color: blue; position: absolute; left: 0%;"></div>
                 <div style="cursor: pointer; width: 30%; height: 60px; background-color: red; position: absolute; left: 15%;"></div>-->
               </div>
@@ -127,7 +130,9 @@ app.controller('HomeCtrl', function($scope)
    // 2: cartela
     $scope.ppvStack = [
       {type: 0, title: '1', begin: 3*60*60, length: (60+20)*60},
-      {type: 0, title: '2', begin: 5*60*60, length: 3*60*60}
+      {type: 0, title: '2', begin: 5*60*60, length: 3*60*60},
+      {type: 0, title: 'Logan', begin: 9*60*60, length: 1*60*60},
+      {type: 0, title: 'Haha', begin: 23*60*60, length: 1*60*60}
     ];
 
     $scope.ppvStackBlocks = [];
@@ -141,16 +146,32 @@ app.controller('HomeCtrl', function($scope)
 
    $scope.ppvOrdered = function()
    {
+     $scope.ppvStack.sort(function(a, b) {
+       return a.begin - b.begin;
+     })
+
+     $scope.ppvStackBlocks = [];
+
      var time = 0;
      for(var i=0; i < $scope.ppvStack.length; i++)
      {
        if($scope.ppvStack[i].begin > time)
        {
-         var width = $scope.ppvStack[i].begin  / 86400 * 100;
-         $scope.ppvStackBlocks.push({color: 'lightgoldenrodyellow', title: width, left: time  / 86400 * 100, width: width});
+         var begin = time;
+         var length = ($scope.ppvStack[i].begin - time);
+         var left = begin / 86400 * 100;
+         var width = length / 86400 * 100;
+         var title = $scope.timeFromSec(length);
+         var time = $scope.timeFromSec(begin) + " - " + $scope.timeFromSec(begin + length);
+         $scope.ppvStackBlocks.push({color: 'lightgoldenrodyellow', title: title, time: time, left: left, width: width});
        }
-       $scope.ppvStackBlocks.push({color: '#34495e', title: $scope.ppvStack[i].title, left: $scope.ppvStack[i].begin  / 86400 * 100, width: $scope.ppvStack[i].length  / 86400 * 100});
-       time = $scope.ppvStack[i].begin + $scope.ppvStack[i].length;
+       var begin = $scope.ppvStack[i].begin;
+       var length = $scope.ppvStack[i].length;
+       var left = begin / 86400 * 100;
+       var width = length / 86400 * 100;
+       var time = $scope.timeFromSec(begin) + " - " + $scope.timeFromSec(begin + length);
+       $scope.ppvStackBlocks.push({color: '#34495e', title: $scope.ppvStack[i].title, time: time, left: left, width: width});
+       time = begin + length;
      }
      if(time < 24*60*60)
      {
@@ -165,13 +186,30 @@ app.controller('HomeCtrl', function($scope)
    return { cursor: 'pointer', height: '60px', position: 'absolute', 'background-color': ppv.color, left: ppv.left +'%', width: ppv.width +'%' };
   };
 
-  // $scope.ppvAdd = function($index, begin, length)
-  // {
-  //   if($scope.ppvStack[$index].type == 0)
-  //   {
-  //
-  //   }
-  // };
+  $scope.ppvAdd = function()
+  {
+    var begin = $scope.ppv_begin;
+    var length = $scope.ppv_length;
+    begin = begin.split(':');
+    length = length.split(':');
+    begin = parseInt(begin[0])*60*60 + parseInt(begin[1])*60;
+    length = parseInt(length[0])*60*60 + parseInt(length[1])*60;
+    $scope.ppvStack.push({type: 0, title: $scope.ppv_title, begin: begin, length: length});
+
+    $scope.ppvStack.sort(function(a, b) {
+      return a.begin - b.begin;
+    })
+
+    console.log($scope.ppvStack);
+    $scope.ppvOrdered();
+  };
+
+  $scope.timeFromSec = function(sec)
+  {
+    var date = new Date(1970, 0, 1);
+    date.setSeconds(sec);
+    return date.toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
+  };
 
   $scope.ppvOrdered();
 
