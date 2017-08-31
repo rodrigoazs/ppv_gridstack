@@ -12,7 +12,7 @@
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="dist/gridstack.css"/>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.5.0/lodash.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.6/angular.min.js"></script>
     <!--<script src="dist/gridstack.js"></script>
@@ -26,6 +26,10 @@
 
         #grid2 {
             background: lightcyan;
+        }
+
+        .grid-content:hover {
+          border: 1px dashed lightgray;
         }
 
         .grid-stack-item-content {
@@ -98,17 +102,79 @@
     </style>
 </head>
 <body>
-    <div class="container-fluid">
+    <div class="container-fluid" ng-app="app" ng-controller="HomeCtrl">
         <h1>PPV</h1>
         <div class="row" style="padding: 10px;">
           <div class="col-md-1" style="background-color: #2980b9; height: 60px;">a</div>
           <div class="col-md-9">
               <div class="grid-stack grid-stack-100" style="width: 100%; height: 60px; max-height: 60px;" id="grid1">
-                <div style="cursor: pointer; width: 15%; height: 60px; background-color: blue; position: absolute; left: 0%;"></div>
-                 <div style="cursor: pointer; width: 30%; height: 60px; background-color: red; position: absolute; left: 15%;"></div>
+                <div ng-click="ppvOrdered()" ng-repeat="ppv in ppvStackBlocks" class="grid-content" ng-style="ppvStyle($index)">{{ppv.title}}</div>
+                <!--<div style="cursor: pointer; width: 15%; height: 60px; background-color: blue; position: absolute; left: 0%;"></div>
+                <div style="cursor: pointer; width: 30%; height: 60px; background-color: red; position: absolute; left: 15%;"></div>-->
               </div>
           </div>
         </div>
     </div>
 </body>
+<script>
+var app = angular.module('app',[]);
+
+app.controller('HomeCtrl', function($scope)
+{
+   // type
+   // 0: movie
+   // 1: ad
+   // 2: cartela
+    $scope.ppvStack = [
+      {type: 0, title: '1', begin: 3*60*60, length: (60+20)*60},
+      {type: 0, title: '2', begin: 5*60*60, length: 3*60*60}
+    ];
+
+    $scope.ppvStackBlocks = [];
+  //  $scope.ppvStack = [
+  //    {color: 'red', left: 0, width: 0, type: 0, length: 3*60*60},
+  //    {color: 'blue', left: 0, width: 0, title: 'Logan', type: 1, length: (60+20)*60},
+  //    {color: 'red', left: 10, width: 50, type: 0, length: 3*60*60},
+  //    {color: 'blue', left: 0, width: 0, title: 'Spider-Man', type: 1, length: (50+20)*60},
+  //    {color: 'red', left: 0, width: 0, type: 0, length: 24*60*60 - (50+20)*60 - 2*3*60*60 - (60+20)*60},
+  //  ];
+
+   $scope.ppvOrdered = function()
+   {
+     var time = 0;
+     for(var i=0; i < $scope.ppvStack.length; i++)
+     {
+       if($scope.ppvStack[i].begin > time)
+       {
+         var width = $scope.ppvStack[i].begin  / 86400 * 100;
+         $scope.ppvStackBlocks.push({color: 'lightgoldenrodyellow', title: width, left: time  / 86400 * 100, width: width});
+       }
+       $scope.ppvStackBlocks.push({color: '#34495e', title: $scope.ppvStack[i].title, left: $scope.ppvStack[i].begin  / 86400 * 100, width: $scope.ppvStack[i].length  / 86400 * 100});
+       time = $scope.ppvStack[i].begin + $scope.ppvStack[i].length;
+     }
+     if(time < 24*60*60)
+     {
+       $scope.ppvStackBlocks.push({color: 'lightgoldenrodyellow', title: '',  left: time  / 86400 * 100, width: (24 * 60 * 60 - time)  / 86400 * 100});
+     }
+     console.log($scope.ppvStackBlocks);
+   };
+
+  $scope.ppvStyle = function($index)
+  {
+   var ppv = $scope.ppvStackBlocks[$index];
+   return { cursor: 'pointer', height: '60px', position: 'absolute', 'background-color': ppv.color, left: ppv.left +'%', width: ppv.width +'%' };
+  };
+
+  // $scope.ppvAdd = function($index, begin, length)
+  // {
+  //   if($scope.ppvStack[$index].type == 0)
+  //   {
+  //
+  //   }
+  // };
+
+  $scope.ppvOrdered();
+
+});
+</script>
 </html>
